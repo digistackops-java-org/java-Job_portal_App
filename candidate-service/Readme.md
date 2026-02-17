@@ -43,7 +43,8 @@ Replace 0.0.0.0 in bindIp
 sudo systemctl restart mongod
 ```
 # Backend Application Setup
-## Setup your Application Database by executing "initdb.js" script from Application-server
+## Launch EC2 "t2.micro" Instance and In Sg, Open port "8080" for JAVA Application 
+#### Setup your Application Database by executing "initdb.js" script from Application-server
 
 Step:1 ==> install "mongo-Client" for communicate with Mongo Database
 
@@ -63,16 +64,110 @@ To install "Mongo-Shell" to communicate with Mongo database
 sudo yum update -y
 sudo yum install -y mongodb-mongosh
 ```
-Step:2 ==> Execute your "init.sql" script for your Application DB setup
+Step:2 ==> Execute your "initdb.js" script for your Application DB setup
 
 ```
-mongosh "mongodb://<DB-Private-IP>:27017/db" < initdb.js
+mongosh "mongodb://candidate_user:pa55Word@<DB-Private-IP>:27017/candidate" < initdb.js
+```
+####  Install GIT
+```
+sudo yum install git -y
 ``` 
-### Pass our DB Credentials as Environment Variables 
+
+## Install JAVA
+####  Installation of openJDK 17
+```
+sudo dnf update -y
+sudo yum install java-17-amazon-corretto-devel -y
+``` 
+
+## Install Maven
+```
+sudo wget https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
+sudo tar xzf apache-maven-3.9.11-bin.tar.gz -C /opt
+sudo ln -s apache-maven-3.9.11 /opt/maven
+```
+#### Create Profile for Maven  
+```
+sudo vi /etc/profile.d/maven.sh
+```
 
 ```
-export MONGO_USER=appuser
-export MONGO_PASS=pa55Word
-export MONGO_HOST=AWS-DB-Private-IP
-export MONGO_DB=user-account
+export M2_HOME=/opt/maven
+export PATH=${M2_HOME}/bin:${PATH}
 ```
+#### Reload profile
+```
+sudo chmod +x /etc/profile.d/maven.sh
+source /etc/profile.d/maven.sh
+mvn -version
+```
+
+
+## Get the Code
+### create Application user for Executing Application
+
+```
+sudo useradd candidate
+```
+### We keep application in one standard location. This is a usual practice that runs in the organization. Lets setup an app directory.
+```
+sudo mkdir /app
+```
+
+```
+cd /app
+sudo git clone https://github.com/digistackops-java-org/java-Job_portal_App.git
+cd java-Job_portal_App
+sudo chown -R candidate:candidate /app/java-Job_portal_App
+```
+Switch branch
+
+```
+git checkout 01-Local-setup-Prod-V1
+sudo chown -R candidate:candidate /app/java-Job_portal_App
+```
+### Buikld the Package
+```
+cd candidate-service
+mvn clean package
+```
+### Production Backend Setup
+Start Backend Application, for HA we use Linux service for Backend
+```
+sudo vim /etc/systemd/system/backend.service
+```
+```
+[Unit]
+Description=Student Spring Boot App
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/app/JAVA-3-tier-UMS-Local/backend
+
+# Environment variables
+Environment=SERVER_PORT=8080
+Environment=DB_HOST=<DB-Private-IP>
+Environment=DB_PORT=5432
+Environment=DB_NAME=user-account
+Environment=DB_USER=appuser
+Environment=DB_PASSWORD=P@55Word
+Environment=CORS_ALLOWED_ORIGINS=http://<Frontend-IP>
+
+ExecStart=/usr/bin/java -jar /app/java-Job_portal_App/candidate-service/target/studentapp-0.0.1-SNAPSHOT.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+Enable the backens servive
+```
+sudo systemctl daemon-reload
+sudo systemctl enable backend
+sudo systemctl start backend
+sudo systemctl status backend
+```
+
