@@ -1,4 +1,4 @@
-<img width="782" height="73" alt="image" src="https://github.com/user-attachments/assets/306f77dc-2486-4a9f-8d89-e181e401beed" /># DB Setup
+# DB Setup
 ## Launch EC2 "t2.micro" Instance and In Sg, Open port "27017" for MongoDB
 ### Create mondDB repo in YUM repository
 ```
@@ -108,7 +108,7 @@ Generally in organization they create one Application user for the Project, HERE
 user "candidate"  is a function (or) Daemon usr to run the Application, apart from that we don’t use this user to login to servers
 
 ```
-sudo useradd candidate
+sudo useradd job
 ```
 ### We keep application in one standard location. This is a usual practice that runs in the organization. Lets setup an app directory.
 ```
@@ -119,13 +119,13 @@ sudo mkdir /app
 cd /app
 sudo git clone https://github.com/digistackops-java-org/java-Job_portal_App.git
 cd java-Job_portal_App
-sudo chown -R candidate:candidate /app/java-Job_portal_App
+sudo chown -R job:job /app/java-Job_portal_App
 ```
 Switch branch
 
 ```
 git checkout 01-Local-setup-Prod-V1
-sudo chown -R candidate:candidate /app/java-Job_portal_App
+sudo chown -R job:job /app/java-Job_portal_App
 ```
 ### Buikld the Package
 ```
