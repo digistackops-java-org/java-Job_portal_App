@@ -1,4 +1,4 @@
-# DB Setup
+<img width="782" height="73" alt="image" src="https://github.com/user-attachments/assets/306f77dc-2486-4a9f-8d89-e181e401beed" /># DB Setup
 ## Launch EC2 "t2.micro" Instance and In Sg, Open port "27017" for MongoDB
 ### Create mondDB repo in YUM repository
 ```
@@ -103,9 +103,9 @@ source /etc/profile.d/maven.sh
 mvn -version
 ```
 
-
-## Get the Code
 ### create Application user for Executing Application
+Generally in organization they create one Application user for the Project, HERE I am Creating user "candidate" 
+user "candidate"  is a function (or) Daemon usr to run the Application, apart from that we don’t use this user to login to servers
 
 ```
 sudo useradd candidate
@@ -129,7 +129,7 @@ sudo chown -R candidate:candidate /app/java-Job_portal_App
 ```
 ### Buikld the Package
 ```
-cd candidate-service
+cd job-service
 mvn clean package
 ```
 ### Production Backend Setup
@@ -143,19 +143,10 @@ Description=Student Spring Boot App
 After=network.target
 
 [Service]
-User=ec2-user
-WorkingDirectory=/app/JAVA-3-tier-UMS-Local/backend
+User=candidate
+WorkingDirectory=/app/java-Job_portal_App/job-service/
 
-# Environment variables
-Environment=SERVER_PORT=8080
-Environment=DB_HOST=<DB-Private-IP>
-Environment=DB_PORT=5432
-Environment=DB_NAME=user-account
-Environment=DB_USER=appuser
-Environment=DB_PASSWORD=P@55Word
-Environment=CORS_ALLOWED_ORIGINS=http://<Frontend-IP>
-
-ExecStart=/usr/bin/java -jar /app/java-Job_portal_App/candidate-service/target/studentapp-0.0.1-SNAPSHOT.jar
+ExecStart=/usr/bin/java -jar /app/java-Job_portal_App/job-service/target/studentapp-0.0.1-SNAPSHOT.jar
 SuccessExitStatus=143
 Restart=always
 RestartSec=5
