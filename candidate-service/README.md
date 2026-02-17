@@ -104,8 +104,9 @@ mvn -version
 ```
 
 
-## Get the Code
 ### create Application user for Executing Application
+Generally in organization they create one Application user for the Project, HERE I am Creating user "candidate" 
+user "candidate"  is a function (or) Daemon usr to run the Application, apart from that we don’t use this user to login to servers
 
 ```
 sudo useradd candidate
@@ -144,16 +145,7 @@ After=network.target
 
 [Service]
 User=ec2-user
-WorkingDirectory=/app/JAVA-3-tier-UMS-Local/backend
-
-# Environment variables
-Environment=SERVER_PORT=8080
-Environment=DB_HOST=<DB-Private-IP>
-Environment=DB_PORT=5432
-Environment=DB_NAME=user-account
-Environment=DB_USER=appuser
-Environment=DB_PASSWORD=P@55Word
-Environment=CORS_ALLOWED_ORIGINS=http://<Frontend-IP>
+WorkingDirectory=/app/java-Job_portal_App/candidate-service
 
 ExecStart=/usr/bin/java -jar /app/java-Job_portal_App/candidate-service/target/studentapp-0.0.1-SNAPSHOT.jar
 SuccessExitStatus=143
